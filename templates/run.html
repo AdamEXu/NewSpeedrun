@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Run Details</h1>
+    <p><strong>Username:</strong> {{ run["username"] }}</p>
+    <p><strong>Time:</strong> {{ run["time"] }}</p>
+    <div class="video">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ run['video_url'].split('?v=')[1] }}" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <a href="/">Back to Leaderboard</a>
+</body>
+</html>

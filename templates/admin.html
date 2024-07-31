@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - All Runs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>All Submitted Runs</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Time</th>
+                <th>Game</th>
+                <th>Video</th>
+                <th>Submission Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in runs %}
+                <tr>
+                    <td>{{ run[0] }}#{{ run[1] }}</td>
+                    <td>{{ run[2] }}</td>
+                    <td>{{ run[4] }}</td>
+                    <td><a href="{{ run[3] }}" target="_blank">Watch</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
