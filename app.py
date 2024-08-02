@@ -9,6 +9,9 @@ app.secret_key = os.getenv('SECRET_KEY')  # Set this key securely
 
 USERS_FILE = 'users.csv'
 RUNS_FILE = 'runs.csv'
+QUEUE_FILE = 'queue.csv'
+
+ADMIN_USER_ID = ['773996537414942763']
 
 @app.route('/')
 def home():
@@ -78,7 +81,7 @@ def submit():
         with open(RUNS_FILE, 'r') as f:
             run_id = len(f.readlines()) + 1
 
-        with open(RUNS_FILE, 'a') as f:
+        with open(QUEUE_FILE, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([run_id, user_id, time, video_url, game, now])
 
@@ -164,5 +167,137 @@ def rules():
 def temp():
     return "Please wait... Loading..."
 
+@app.route('/admin', methods=['GET'])
+def verify():
+    # verify they are admin with discord auth
+    user_info = session['user_info']
+    print('A user has attempted to access the admin page. Outputting user info:')
+    print(user_info)
+    if user_info['id'] not in ADMIN_USER_ID:
+        return "You are not authorized to access this page", 401
+    queue = []
+    with open(QUEUE_FILE, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            username = 'temp'
+            user_id = row[1]
+            print(user_id)
+            with open(USERS_FILE, 'r') as uf:
+                user_reader = csv.reader(uf)
+                for user_row in user_reader:
+                    if user_row[0] == user_id:
+                        username = f"{user_row[1]}"
+                        break
+            time = row[2]
+            video_url = row[3]
+            game = row[4]
+            timestamp = row[5]
+            run_id = row[0]
+            user_id = row[1]
+            data = [username, time, video_url, game, timestamp, run_id, user_id]
+            queue.append(data)
+    return render_template('admin.html', queue=queue)
+
+@app.route('/deleterun', methods=['GET'])
+def deleterun():
+    # is the user logged in?
+    if 'user_info' not in session:
+        return redirect(url_for('login'))
+    # run_id = request.form.get('id')
+    run_id = request.args.get('id')
+    print("RUN ID:", run_id)
+    if not run_id:
+        return "Run ID is required", 400
+    # now check if they are owner of the run OR admin
+    user_info = session['user_info']
+    print('A user has attempted to delete a run. Outputting user info:')
+    print(user_info)
+    if user_info['id'] in ADMIN_USER_ID:
+        with open(RUNS_FILE, 'r') as f:
+            reader = csv.reader(f)
+            runs = []
+            for row in reader:
+                if row[0] == run_id:
+                    continue
+                runs.append(row)
+        with open(RUNS_FILE, 'w') as f:
+            writer = csv.writer(f)
+            for row in runs:
+                writer.writerow(row)
+        return redirect(url_for('home'))
+    with open(RUNS_FILE, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[0] == run_id:
+                if row[1] == user_info['id']:
+                    runs = []
+                    with open(RUNS_FILE, 'r') as f:
+                        reader = csv.reader(f)
+                        for row in reader:
+                            if row[0] == run_id:
+                                continue
+                            runs.append(row)
+                    with open(RUNS_FILE, 'w') as f:
+                        writer = csv.writer(f)
+                        for row in runs:
+                            writer.writerow(row)
+                    return redirect(url_for('home'))
+                return "You are not authorized to delete this run", 401
+            
+    if user_info['id'] not in ADMIN_USER_ID:
+        return "Run not found", 404
+    with open(QUEUE_FILE, 'r') as f:
+        reader = csv.reader(f)
+        runs = []
+        for row in reader:
+            if row[0] == run_id:
+                continue
+            runs.append(row)
+    with open(QUEUE_FILE, 'w') as f:
+        writer = csv.writer(f)
+        for row in runs:
+            writer.writerow(row)
+    return redirect(url_for('home'))
+
+@app.route('/addrun', methods=['GET'])
+def addrun():
+    # only admin can access this page
+    user_info = session['user_info']
+    print('A user has attempted to access the addrun page. Outputting user info:')
+    print(user_info)
+    if user_info['id'] not in ADMIN_USER_ID:
+        return "You are not authorized to access this page", 401
+    
+    # add the run to runs.csv
+    # get all run info from the request
+    user_id = request.args.get('user_id')
+    time = request.args.get('time')
+    video_url = request.args.get('video_url')
+    game = request.args.get('game')
+    timestamp = request.args.get('submission_time')
+    run_id = request.args.get('run_id')
+    print([run_id, user_id, time, video_url, game, timestamp])
+    with open(RUNS_FILE, 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow([run_id, user_id, time, video_url, game, timestamp])
+    # remove from queue.csv
+    runs = []
+    with open(QUEUE_FILE, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[0] == run_id:
+                continue
+            runs.append(row)
+    with open(QUEUE_FILE, 'w') as f:
+        writer = csv.writer(f)
+        for row in runs:
+            writer.writerow(row)
+    return '{"Success": "Run added to leaderboard"}'
+    
+# 404 special page
+@app.errorhandler(404)
+def page_not_found(e):
+    return "404: Page not found. <a href='/'>Click here to go back to the leaderboard.</a>", 404
+
 if __name__ == '__main__':
-    app.run(debug=False, port=80, host="0.0.0.0")
+    app.run(debug=True, port=5000, host="0.0.0.0")

@@ -7,27 +7,77 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>All Submitted Runs</h1>
-    <table>
+    <h1>RUN APPROVAL QUEUE (ADMIN ONLY)</h1>
+    <table id="leaderboard-table">
         <thead>
             <tr>
                 <th>Username</th>
+                <th>User ID</th>
                 <th>Time</th>
-                <th>Game</th>
                 <th>Video</th>
-                <th>Submission Date</th>
+                <th>Game</th>
+                <th>Submission Time</th>
+                <th>Approve</th>
+                <th>Reject</th>
+                <th>Run ID</th>
             </tr>
         </thead>
-        <tbody>
-            {% for run in runs %}
-                <tr>
-                    <td>{{ run[0] }}#{{ run[1] }}</td>
-                    <td>{{ run[2] }}</td>
-                    <td>{{ run[4] }}</td>
-                    <td><a href="{{ run[3] }}" target="_blank">Watch</a></td>
-                </tr>
-            {% endfor %}
+        <tbody id="leaderboard-body">
+            
         </tbody>
     </table>
+    <script>
+        // runs is a list of lists, where each inner list contains the username, time, video URL, game, and submission time for a run
+        const runs = {{ queue | safe }};
+
+        const leaderboardBody = document.getElementById("leaderboard-body");
+
+        runs.forEach(run => {
+            const row = document.createElement("tr");
+            row.id = `run-${run[5]}`;
+            row.innerHTML = `
+                <td>${run[0]}</td>
+                <td>${run[6]}</td>
+                <td contenteditable="true">${run[1]}</td>
+                <td><a href="${run[2]}" target="_blank">Watch</a></td>
+                <td>${run[3]}</td>
+                <td>${run[4]}</td>
+                <td><button onclick="approveRun(${run[5]})">Approve</button></td>
+                <td><button onclick="rejectRun(${run[5]})">Reject</button></td>
+                <td>${run[5]}</td>
+            `;
+            leaderboardBody.appendChild(row);
+        });
+
+        function approveRun(runId) {
+            // go through the table and find the row with the runId
+            const row = document.getElementById(`run-${runId}`);
+            const time = row.querySelectorAll("td")[2].innerText;
+            const videoUrl = row.querySelectorAll("td")[3].querySelector("a").href;
+            const game = row.querySelectorAll("td")[4].innerText;
+            const submissionTime = row.querySelectorAll("td")[5].innerText;
+            const userId = row.querySelectorAll("td")[1].innerText;
+            // send a get request to /addrun with the runId, time, videoUrl, game, and submissionTime as query parameters
+            fetch(`/addrun?run_id=${runId}&time=${time}&video_url=${videoUrl}&game=${game}&submission_time=${submissionTime}&user_id=${userId}`, { method: "GET" })
+                .then(response => response.json())
+                .then(data => {
+                    // reload the page
+                    window.location.reload();
+                });
+        }
+
+        function rejectRun(runId) {
+            fetch(`/deleterun?run_id=${runId}`, { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Run rejected successfully!");
+                        window.location.reload();
+                    } else {
+                        alert("An error occurred. Please try again.");
+                    }
+                });
+        }
+    </script>
 </body>
 </html>

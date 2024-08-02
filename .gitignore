@@ -3,7 +3,9 @@ _temp/
 
 # Databases
 *.db
-*.csv
+runs.csv
+users.csv
+queue.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
