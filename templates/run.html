@@ -11,8 +11,21 @@
     <p><strong>Username:</strong> {{ run["username"] }}</p>
     <p><strong>Time:</strong> {{ run["time"] }}</p>
     <div class="video">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ run['video_url'].split('?v=')[1] }}" frameborder="0" allowfullscreen></iframe>
+        <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ run['video_url'].split('?v=')[1] }}" frameborder="0" allowfullscreen></iframe> -->
+        <iframe width="560" height="315" src="temp" frameborder="0" allowfullscreen></iframe>
     </div>
     <a href="/">Back to Leaderboard</a>
+    <script>
+        const videoUrl = "{{ run['video_url'] }}";
+        if (videoUrl.includes("youtube.com/watch?v=")) {
+            const videoId = videoUrl.split("?v=")[1];
+            document.querySelector("iframe").src = `https://www.youtube.com/embed/${videoId}`;
+        } else if (videoUrl.includes("youtu.be/")) {
+            const videoId = videoUrl.split("youtu.be/")[1];
+            document.querySelector("iframe").src = `https://www.youtube.com/embed/${videoId}`;
+        } else {
+            document.querySelector("iframe").src = videoUrl;
+        }
+    </script>
 </body>
 </html>
