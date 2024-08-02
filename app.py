@@ -160,5 +160,9 @@ def run():
 def rules():
     return render_template('rules.html')
 
+@app.route('/temp')
+def temp():
+    return "Please wait... Loading..."
+
 if __name__ == '__main__':
     app.run(debug=False, port=80, host="0.0.0.0")
