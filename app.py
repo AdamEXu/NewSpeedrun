@@ -23,6 +23,7 @@ def login():
 def callback():
     code = request.args.get('code')
     token_info = discord_auth.get_token(code)
+    print(token_info)
     session['discord_token'] = token_info['access_token']
     user_info = discord_auth.get_user_info(session['discord_token'])
     
@@ -73,7 +74,7 @@ def submit():
 
         now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # read the last run id, which is number of lines in the file + 1
+        # Read the last run id, which is the number of lines in the file + 1
         with open(RUNS_FILE, 'r') as f:
             run_id = len(f.readlines()) + 1
 
@@ -81,12 +82,29 @@ def submit():
             writer = csv.writer(f)
             writer.writerow([run_id, user_id, time, video_url, game, now])
 
-        flash('Run submitted successfully.')
+        # Assign "Speedrunner" role using a separate bot
+        guild_id = os.getenv('DISCORD_GUILD_ID')
+        role_id = os.getenv('DISCORD_ROLE_ID')
+
+        role_id = {
+            "speedrunner": 1268657083310669925,
+            "port": 1268665745567518872,
+            "tutorial": 1268665919048122563
+        }
+
+        print(discord_auth.assign_role(guild_id, user_id, role_id['speedrunner']))
+        if game == 'game1':
+            print('assigning port role')
+            print(discord_auth.assign_role(guild_id, user_id, role_id['port']))
+        elif game == 'game2':
+            discord_auth.assign_role(guild_id, user_id, role_id['tutorial'])
+
         return redirect(url_for('home'))
 
     if 'user_info' not in session:
         return redirect(url_for('login'))
     return render_template('submit.html')
+
 
 @app.route('/leaderboard', methods=['GET'])
 def leaderboard():
@@ -139,4 +157,4 @@ def run():
     return "Run not found", 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000, host="0.0.0.0")
