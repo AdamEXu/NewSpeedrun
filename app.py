@@ -156,5 +156,9 @@ def run():
                             return render_template('run.html', run=run)
     return "Run not found", 404
 
+@app.route('/rules')
+def rules():
+    return render_template('rules.html')
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host="0.0.0.0")

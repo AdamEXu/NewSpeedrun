@@ -74,3 +74,9 @@ td a {
 .submit-run-button button:hover {
   background-color: #45a049;
 }
+
+#rules {
+  text-align: left;
+  width: 50%;
+  margin-left: 25%;
+}

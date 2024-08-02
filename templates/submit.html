@@ -30,15 +30,23 @@
             <input type="url" id="video_url" name="video_url" required>
         </div>
         <div>
-            <label for="game">Game:</label>
-            <select id="game" name="game" required>
-                <option value="" disabled selected>Select a game</option>
-                <option value="game1">Port%</option>
-                <option value="game2">Tutorial%</option>
-                <!-- <option value="game3">Game 3</option> -->
-            </select>
-        </div>
-        <button type="submit">Submit Run</button>
+          <label for="game">Game:</label>
+          <select id="game" name="game" required>
+            <option value="" disabled selected>Select a game</option>
+            <option value="game1">Port%</option>
+            <option value="game2">Tutorial%</option>
+            <!-- <option value="game3">Game 3</option> -->
+          </select>
+          <br>
+          <br>
+          <div>
+              <label for="rulesconfirm">Yes, I have read the rules for this site and my category and am following all of them in this submission:</label>
+              <input type="checkbox" id="rulesconfirm" name="rulesconfirm" required>
+          </div>
+        </div><br>
+        <button type="submit">Submit Run</button><br><br><br>
+        <b>IMPORTANT: Make sure you have actually read the rules for speedrunning on this site and for your category. Submissions that do not follow the rules will be removed. Cheating will result in a permanent ban from this leaderboard and the Discord server, with no exceptions.</b><br>
+        <a href="{{ url_for('rules') }}" target="_blank">Click here to read the rules in a new tab</a>
     </form>
     <a href="/">Back to Leaderboard</a>
 </body>

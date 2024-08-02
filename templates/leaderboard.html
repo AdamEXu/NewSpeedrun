@@ -15,7 +15,7 @@
             <button>Submit Run</button>
         </a>
     </div>
-
+    
     <div class="tabs">
         <button class="tab-button" onclick="loadLeaderboard('game1')" id="game1">Port%</button>
         <button class="tab-button" onclick="loadLeaderboard('game2')" id="game2">Tutorial%</button>
@@ -36,6 +36,13 @@
                 <!-- Leaderboard data will be inserted here by JavaScript -->
             </tbody>
         </table>
+    </div>
+    <h2>IMPORTANT! You must read the rules before submitting a run.</h2>
+    <b> Failure to follow them will result in removal of submissions, or in the case of cheating, a permanent ban from submitting and the Discord server.</b>
+    <div class="rules-button">
+        <a href="{{ url_for('rules') }}">
+            <button>View the rules</button>
+        </a>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
