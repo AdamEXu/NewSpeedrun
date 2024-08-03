@@ -25,10 +25,16 @@ function loadLeaderboard(game) {
         });
         data.forEach(run => {
             const row = document.createElement('tr');
+            // currently time is in SS.ms format, convert to HH:MM:SS.ms
+            const time = run.time.split('.');
+            const seconds = parseInt(time[0]);
+            const ms = parseInt(time[1]);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
             row.innerHTML = `
                 <td>${i}</td>
                 <td>${run.username}</td>
-                <td>${run.time}</td>
+                <td>${hours}:${minutes % 60}:${seconds % 60}.${ms}</td>
                 <td><a href="/run?id=${run.id}">View run</a></td>
                 <td>${run.timestamp}</td>
             `;
